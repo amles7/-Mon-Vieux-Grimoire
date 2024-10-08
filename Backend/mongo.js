@@ -1,18 +1,17 @@
-const { MongoClient } = require('mongodb');
+const dotenv = require("dotenv");
+dotenv.config();
+const mongoose = require("mongoose");
 
-//chaîne de connexion
-const uri = "mongodb+srv://amles:5ydzJjO6IoAgvGDp@cluster0.xrf8i.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-async function run() {
-    try {
-        await client.connect();
-        console.log("Connexion à MongoDB réussie !");
-    } catch (error) {
-        console.error("Erreur de connexion à MongoDB :", error);
-    }
-}
+const connectToMongo = () => {
+  mongoose
+    .connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => console.log("Connexion à MongoDB réussie !"))
+    .catch((error) => console.error("Erreur de connexion à MongoDB :", error));
+};
 
-module.exports = run;
-
+module.exports = connectToMongo;

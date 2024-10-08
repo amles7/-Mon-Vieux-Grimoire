@@ -1,14 +1,25 @@
+const dotenv = require("dotenv");
+dotenv.config(); // Charger les variables d'environnement
 const express = require("express");
+const cors = require("cors"); 
+const connectToMongo = require("./mongo"); // Connexion MongoDB
+const userRoutes = require("./routes/user"); // Routes d'authentification
+
 const app = express();
-const run = require("./mongo"); // Assure-toi que c'est bien en minuscule, car tu exportes 'run'
 
-run(); // Appel de la fonction run pour connecter MongoDB
+// Connexion à MongoDB
+connectToMongo();
 
-app.get("/", function (req, res) {
-  res.send("Hello World");
+// Middleware pour traiter les requêtes JSON
+app.use(express.json());
+app.use(cors());
+
+// Routes
+app.use("/api/auth", userRoutes); // Routes pour l'authentification
+
+
+// Port de l'application
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Serveur démarré sur le port ${PORT}`);
 });
-
-app.listen(3000, () => {
-  console.log("Le serveur écoute sur le port 3000");
-});
-
