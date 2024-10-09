@@ -59,3 +59,50 @@ exports.deleteBook = (req, res) => {
     })
     .catch((error) => res.status(500).json({ error }));
 };
+exports.addRating = async (req, res) => {
+  try {
+    const bookId = req.params.id;
+    const { userId, rating } = req.body;
+
+    if (rating < 0 || rating > 5) {
+      return res.status(400).json({ message: 'La note doit être entre 0 et 5.' });
+    }
+
+    // Récupérer le livre
+    const book = await Books.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ message: 'Livre non trouvé.' });
+    }
+
+    // Vérifier si l'utilisateur a déjà noté
+    const existingRating = book.ratings.find(r => r.userId === userId);
+    if (existingRating) {
+      return res.status(400).json({ message: 'Vous avez déjà noté ce livre.' });
+    }
+
+    book.ratings.push({ userId, grade: rating });
+
+    // Calculer la nouvelle moyenne
+    const totalRatings = book.ratings.length;
+    const sumRatings = book.ratings.reduce((sum, r) => sum + r.grade, 0);
+    book.averageRating = sumRatings / totalRatings;
+
+    // Sauvegarder le livre avec la nouvelle note et moyenne
+    await book.save();
+
+    res.status(200).json(book);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+exports.getBestRatedBooks = async (req, res) => {
+  try {
+    const bestRatedBooks = await Books.find()
+      .sort({ averageRating: -1 }) // Trier par note moyenne décroissante
+      .limit(3); // Limiter aux trois meilleurs
+    res.status(200).json(bestRatedBooks);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
