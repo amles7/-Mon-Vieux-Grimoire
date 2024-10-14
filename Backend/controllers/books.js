@@ -65,20 +65,22 @@ exports.addRating = async (req, res) => {
     const { userId, rating } = req.body;
 
     if (rating < 0 || rating > 5) {
-      return res.status(400).json({ message: 'La note doit être entre 0 et 5.' });
+      return res
+        .status(400)
+        .json({ message: "La note doit être entre 0 et 5." });
     }
 
     // Récupérer le livre
     const book = await Books.findById(bookId);
 
     if (!book) {
-      return res.status(404).json({ message: 'Livre non trouvé.' });
+      return res.status(404).json({ message: "Livre non trouvé." });
     }
 
     // Vérifier si l'utilisateur a déjà noté
-    const existingRating = book.ratings.find(r => r.userId === userId);
+    const existingRating = book.ratings.find((r) => r.userId === userId);
     if (existingRating) {
-      return res.status(400).json({ message: 'Vous avez déjà noté ce livre.' });
+      return res.status(400).json({ message: "Vous avez déjà noté ce livre." });
     }
 
     book.ratings.push({ userId, grade: rating });
